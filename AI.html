@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Race Game</title>
+    <style>
+        body {
+            margin: 0;
+            font-family: 'Arial', sans-serif;
+            background-color: #f4f4f4;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            overflow: hidden;
+        }
+        #gameContainer {
+            width: 300px;
+            height: 500px;
+            background-color: #808080;
+            position: relative;
+            overflow: hidden;
+            border: 2px solid #fff;
+        }
+        .car {
+            width: 50px;
+            height: 100px;
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+        .playerCar {
+            background-color: red;
+        }
+        .obstacle {
+            width: 50px;
+            height: 100px;
+            background-color: blue;
+            position: absolute;
+            top: -100px;
+        }
+        .lane {
+            position: absolute;
+            width: 10px;
+            height: 100%;
+            background-color: white;
+            top: 0;
+            z-index: 1;
+        }
+        #score {
+            color: white;
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            font-size: 20px;
+            z-index: 2;
+        }
+        #controls {
+            margin-top: 20px;
+        }
+        .controlButton {
+            padding: 10px 20px;
+            margin: 5px;
+            font-size: 1rem;
+            border-radius: 5px;
+            border: none;
+            cursor: pointer;
+        }
+        #homeButton {
+            background-color: red;
+            color: white;
+        }
+        #restartButton {
+            background-color: green;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <div id="gameContainer">
+        <div id="score">Score: 0</div>
+        <div class="lane" style="left: 25%;"></div>
+        <div class="lane" style="left: 50%;"></div>
+        <div class="lane" style="left: 75%;"></div>
+        <div class="car playerCar" id="car"></div>
+    </div>
+    <div id="controls">
+        <button class="controlButton" id="homeButton">Home</button>
+        <button class="controlButton" id="restartButton">Restart</button>
+    </div>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const gameContainer = document.getElementById('gameContainer');
+            const car = document.getElementById('car');
+            const scoreDisplay = document.getElementById('score');
+            const homeButton = document.getElementById('homeButton');
+            const restartButton = document.getElementById('restartButton');
+            let score = 0;
+            let obstacles = [];
+            let gameInterval;
+            let obstacleInterval;
+
+            function createObstacle() {
+                const obstacle = document.createElement('div');
+                obstacle.classList.add('obstacle');
+                obstacle.style.left = `${Math.random() * (gameContainer.clientWidth - 50)}px`;
+                gameContainer.appendChild(obstacle);
+                obstacles.push(obstacle);
+            }
+
+            function moveCar(event) {
+                const left = parseInt(window.getComputedStyle(car).getPropertyValue('left'));
+                if (event.key === 'ArrowLeft' && left > 0) {
+                    car.style.left = `${left - 10}px`;
+                } else if (event.key === 'ArrowRight' && left < gameContainer.clientWidth - 50) {
+                    car.style.left = `${left + 10}px`;
+                }
+            }
+
+            function moveObstacles() {
+                obstacles.forEach((obstacle, index) => {
+                    const top = parseInt(window.getComputedStyle(obstacle).getPropertyValue('top'));
+                    if (top >= gameContainer.clientHeight) {
+                        obstacle.remove();
+                        obstacles.splice(index, 1);
+                        score += 10;
+                        scoreDisplay.textContent = `Score: ${score}`;
+                    } else {
+                        obstacle.style.top = `${top + 5}px`;
+                    }
+                });
+            }
+
+            function checkCollision() {
+                const carRect = car.getBoundingClientRect();
+                for (let obstacle of obstacles) {
+                    const obstacleRect = obstacle.getBoundingClientRect();
+                    if (
+                        carRect.x < obstacleRect.x + obstacleRect.width &&
+                        carRect.x + carRect.width > obstacleRect.x &&
+                        carRect.y < obstacleRect.y + obstacleRect.height &&
+                        carRect.y + carRect.height > obstacleRect.y
+                    ) {
+                        alert(`Game Over! Your score is ${score}`);
+                        resetGame();
+                    }
+                }
+            }
+
+            function gameLoop() {
+                moveObstacles();
+                checkCollision();
+            }
+
+            function startGame() {
+                gameInterval = setInterval(gameLoop, 20);
+                obstacleInterval = setInterval(createObstacle, 2000);
+            }
+
+            function resetGame() {
+                clearInterval(gameInterval);
+                clearInterval(obstacleInterval);
+                obstacles.forEach(obstacle => obstacle.remove());
+                obstacles = [];
+                score = 0;
+                scoreDisplay.textContent = `Score: ${score}`;
+                car.style.left = '50%';
+                startGame();
+            }
+
+            homeButton.addEventListener('click', () => {
+                window.location.href = 'index.html'; // Redirect to home (update URL as needed)
+            });
+
+            restartButton.addEventListener('click', resetGame);
+
+            document.addEventListener('keydown', moveCar);
+            startGame();
+        });
+    </script>
+</body>
+</html>
+

@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Become a King</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            background-color: #f4f4f4;
+        }
+
+        header {
+            background-color: #4CAF50;
+            color: white;
+            padding: 1rem;
+            text-align: center;
+            width: 100%;
+        }
+
+        main {
+            background-color: white;
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            padding: 2rem;
+            max-width: 800px;
+            width: 100%;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+
+        #world-map {
+            max-width: 100%;
+            margin: 1rem 0;
+        }
+
+        button {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            padding: 1rem;
+            cursor: pointer;
+            border-radius: 5px;
+            font-size: 1rem;
+            margin-top: 1rem;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+
+        #status, #story, #start-game, #game-actions {
+            margin-bottom: 1rem;
+        }
+
+        #game-actions {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Become a King</h1>
+        <p>Lead your nation to glory or ruin</p>
+    </header>
+    <main>
+        <div id="start-game">
+            <h2>Start Your Reign</h2>
+            <p>Choose your kingdom type:</p>
+            <select id="kingdom-type">
+                <option value="Kingdom">Kingdom</option>
+                <option value="Terrorist">Terrorist</option>
+                <option value="Politocracy">Politocracy</option>
+            </select>
+            <p>Enter your kingdom name:</p>
+            <input type="text" id="kingdom-name" placeholder="Enter name">
+            <p>Choose your starting land:</p>
+            <select id="starting-land">
+                <option value="Europe">Europe</option>
+                <option value="Asia">Asia</option>
+                <option value="Africa">Africa</option>
+                <option value="North America">North America</option>
+                <option value="South America">South America</option>
+                <option value="Australia">Australia</option>
+            </select>
+            <button onclick="startGame()">Start Game</button>
+        </div>
+
+        <div id="game-actions">
+            <div id="status">
+                <p><strong>Kingdom:</strong> <span id="kingdom-name-display"></span></p>
+                <p><strong>Type:</strong> <span id="kingdom-type-display"></span></p>
+                <p><strong>Starting Land:</strong> <span id="starting-land-display"></span></p>
+                <p><strong>Resources:</strong> <span id="resources">1000</span></p>
+                <p><strong>Military Strength:</strong> <span id="military">500</span></p>
+            </div>
+            <img id="world-map" src="world_map.png" alt="World Map" usemap="#map">
+            <map name="map">
+                <area shape="poly" coords="..." alt="France" onclick="declareWar('France')">
+                <area shape="poly" coords="..." alt="Germany" onclick="declareWar('Germany')">
+                <area shape="poly" coords="..." alt="United Kingdom" onclick="declareWar('United Kingdom')">
+                <area shape="poly" coords="..." alt="Russia" onclick="declareWar('Russia')">
+                <area shape="poly" coords="..." alt="China" onclick="declareWar('China')">
+                <area shape="poly" coords="..." alt="USA" onclick="declareWar('USA')">
+            </map>
+            <div id="actions">
+                <button onclick="manageResources()">Manage Resources</button>
+                <button onclick="deployTroops()">Deploy Troops</button>
+                <button onclick="saveGame()">Save Game</button>
+                <button onclick="loadGame()">Load Game</button>
+            </div>
+            <div id="story"></div>
+        </div>
+    </main>
+    <script>
+        let resources = 1000;
+        let militaryStrength = 500;
+        let kingdomName = '';
+        let kingdomType = '';
+        let startingLand = '';
+
+        function updateStatus() {
+            document.getElementById('resources').innerText = resources;
+            document.getElementById('military').innerText = militaryStrength;
+        }
+
+        function startGame() {
+            kingdomName = document.getElementById('kingdom-name').value;
+            kingdomType = document.getElementById('kingdom-type').value;
+            startingLand = document.getElementById('starting-land').value;
+
+            if (kingdomName && kingdomType && startingLand) {
+                document.getElementById('kingdom-name-display').innerText = kingdomName;
+                document.getElementById('kingdom-type-display').innerText = kingdomType;
+                document.getElementById('starting-land-display').innerText = startingLand;
+
+                document.getElementById('start-game').style.display = 'none';
+                document.getElementById('game-actions').style.display = 'block';
+                updateStatus();
+            }
+        }
+
+        function declareWar(country) {
+            let outcome = Math.random() > 0.5 ? 'win' : 'lose';
+            let storyElement = document.getElementById('story');
+            let warCost = 300;
+            let warOutcome = '';
+
+            if (resources >= warCost && militaryStrength >= warCost) {
+                resources -= warCost;
+                militaryStrength -= warCost;
+
+                if (outcome === 'win') {
+                    resources += 500;
+                    militaryStrength += 200;
+                    warOutcome = `You have won the war against ${country}. Your resources increased by 500 and military strength increased by 200.`;
+                } else {
+                    resources -= 500;
+                    militaryStrength -= 200;
+                    warOutcome = `You have lost the war against ${country}. Your resources decreased by 500 and military strength decreased by 200.`;
+                }
+            } else {
+                warOutcome = `You do not have enough resources or military strength to declare war on ${country}.`;
+            }
+
+            storyElement.innerHTML = `<p>${warOutcome}</p>`;
+            updateStatus();
+        }
+
+        function manageResources() {
+            let manageOutcome = Math.random() > 0.5 ? 'success' : 'failure';
+            let storyElement = document.getElementById('story');
+
+            if (manageOutcome === 'success') {
+                resources += 300;
+                militaryStrength += 100;
+                storyElement.innerHTML = `<p>Successfully managed your resources. Resources increased by 300 and military strength increased by 100.</p>`;
+            } else {
+                resources -= 300;
+                militaryStrength -= 100;
+                storyElement.innerHTML = `<p>Failed to manage your resources properly. Resources decreased by 300 and military strength decreased by 100.</p>`;
+            }
+
+            updateStatus();
+        }
+
+        function deployTroops() {
+            let deploymentOutcome = Math.random() > 0.5 ? 'success' : 'failure';
+            let storyElement = document.getElementById('story');
+
+            if (deploymentOutcome === 'success') {
+                militaryStrength += 200;
+                storyElement.innerHTML = `<p>Successfully deployed troops. Military strength increased by 200.</p>`;
+            } else {
+                militaryStrength -= 200;
+                storyElement.innerHTML = `<p>Failed to deploy troops properly. Military strength decreased by 200.</p>`;
+            }
+
+            updateStatus();
+        }
+
+        function saveGame() {
+            const gameState = {
+                resources,
+                militaryStrength,
+                kingdomName,
+                kingdomType,
+                startingLand
+            };
+            localStorage.setItem('gameState', JSON.stringify(gameState));
+            console.log("Game Saved!");
+        }
+
+        function loadGame() {
+            const savedState = localStorage.getItem('gameState');
+            if (savedState) {
+                const gameState = JSON.parse(savedState);
+                resources = gameState.resources;
+                militaryStrength = gameState.militaryStrength;
+                kingdomName = gameState.kingdomName;
+                kingdomType = gameState.kingdomType;
+                startingLand = gameState.startingLand;
+
+                document.getElementById('kingdom-name-display').innerText = kingdomName;
+                document.getElementById('kingdom-type-display').innerText = kingdomType;
+                document.getElementById('starting-land-display').innerText = startingLand;
+
+                document.getElementById('start-game').style.display = 'none';
+                document.getElementById('game-actions').style.display = 'block';
+
+                updateStatus();
+                console.log("Game Loaded!");
+            } else {
+                console.log("No saved game found.");
+            }
+        }
+    </script>
+</body>
+</html>

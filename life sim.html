@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Life Simulator Game</title>
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+        }
+        header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        #stats-container {
+            display: flex;
+            justify-content: space-around;
+            width: 80%;
+            max-width: 800px;
+            margin-bottom: 20px;
+        }
+        .stat {
+            background-color: white;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            padding: 20px;
+            width: 30%;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+        .stat h2 {
+            margin: 0 0 10px;
+            font-size: 24px;
+        }
+        .stat p {
+            margin: 0;
+            font-size: 18px;
+            color: #666;
+        }
+        .stat .value {
+            font-size: 36px;
+            color: #333;
+        }
+        #actions-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-around;
+            width: 80%;
+            max-width: 800px;
+        }
+        .action {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            margin: 10px;
+            cursor: pointer;
+            border-radius: 5px;
+            font-size: 18px;
+            transition: background-color 0.3s;
+        }
+        .action:hover {
+            background-color: #45a049;
+        }
+        #feedback {
+            margin-top: 20px;
+            font-size: 20px;
+            color: #333;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Life Simulator</h1>
+        <p>Make choices and see how they affect your life!</p>
+    </header>
+    <div id="stats-container">
+        <div class="stat">
+            <h2>Health</h2>
+            <p class="value" id="health">100</p>
+        </div>
+        <div class="stat">
+            <h2>Wealth</h2>
+            <p class="value" id="wealth">50</p>
+        </div>
+        <div class="stat">
+            <h2>Happiness</h2>
+            <p class="value" id="happiness">70</p>
+        </div>
+    </div>
+    <div id="actions-container">
+        <button class="action" id="eat">Eat</button>
+        <button class="action" id="work">Work</button>
+        <button class="action" id="sleep">Sleep</button>
+        <button class="action" id="exercise">Exercise</button>
+        <button class="action" id="relax">Relax</button>
+    </div>
+    <div id="feedback"></div>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const healthElement = document.getElementById('health');
+            const wealthElement = document.getElementById('wealth');
+            const happinessElement = document.getElementById('happiness');
+            const feedbackElement = document.getElementById('feedback');
+            const actions = {
+                eat: { health: 10, wealth: -5, happiness: 5, message: "You ate some food and feel better." },
+                work: { health: -10, wealth: 20, happiness: -5, message: "You worked hard and earned money." },
+                sleep: { health: 5, wealth: 0, happiness: 10, message: "You had a good sleep and feel refreshed." },
+                exercise: { health: 15, wealth: 0, happiness: 5, message: "You exercised and feel more fit." },
+                relax: { health: 5, wealth: -5, happiness: 15, message: "You relaxed and feel happier." },
+            };
+
+            let health = 100;
+            let wealth = 50;
+            let happiness = 70;
+
+            function updateStats() {
+                healthElement.textContent = health;
+                wealthElement.textContent = wealth;
+                happinessElement.textContent = happiness;
+
+                if (health <= 0) {
+                    alert("Game Over! You ran out of health.");
+                    resetGame();
+                }
+            }
+
+            function resetGame() {
+                health = 100;
+                wealth = 50;
+                happiness = 70;
+                updateStats();
+            }
+
+            function performAction(action) {
+                const { health: hChange, wealth: wChange, happiness: haChange, message } = actions[action];
+                health = Math.min(100, Math.max(0, health + hChange));
+                wealth = Math.min(100, Math.max(0, wealth + wChange));
+                happiness = Math.min(100, Math.max(0, happiness + haChange));
+                feedbackElement.textContent = message;
+                updateStats();
+            }
+
+            document.getElementById('eat').addEventListener('click', () => performAction('eat'));
+            document.getElementById('work').addEventListener('click', () => performAction('work'));
+            document.getElementById('sleep').addEventListener('click', () => performAction('sleep'));
+            document.getElementById('exercise').addEventListener('click', () => performAction('exercise'));
+            document.getElementById('relax').addEventListener('click', () => performAction('relax'));
+
+            setInterval(() => {
+                health = Math.max(0, health - 1);
+                happiness = Math.max(0, happiness - 1);
+                updateStats();
+            }, 1000); // Decrease stats over time
+        });
+    </script>
+</body>
+</html>
+

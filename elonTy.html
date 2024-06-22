@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Elon Musk Tycoon</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        header {
+            background-color: #f8f8f8;
+            text-align: center;
+            padding: 2rem 1rem;
+            border-bottom: 1px solid #ddd;
+        }
+
+        header h1 {
+            margin: 0;
+            font-size: 2rem;
+        }
+
+        header p {
+            margin: 0.5rem 0 0;
+            font-size: 1rem;
+            color: #666;
+        }
+
+        main {
+            flex: 1;
+            padding: 2rem 1rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        #money-remaining {
+            font-size: 2rem;
+            margin: 1rem 0;
+        }
+
+        .investments-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1rem;
+            width: 100%;
+            max-width: 1200px;
+        }
+
+        .investment-card {
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            align-items: center;
+            padding: 2rem;
+            background-color: #fff;
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            text-align: center;
+            transition: background-color 0.3s, box-shadow 0.3s;
+        }
+
+        .investment-card:hover {
+            background-color: #f0f0f0;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .investment-card h4 {
+            margin: 0 0 1rem;
+            font-size: 1.2rem;
+        }
+
+        .investment-card p {
+            margin: 0 0 1rem;
+            font-size: 1rem;
+            color: #666;
+        }
+
+        .investment-card button {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            cursor: pointer;
+            border-radius: 5px;
+            font-size: 1rem;
+        }
+
+        .investment-card button:hover {
+            background-color: #45a049;
+        }
+
+        #portfolio {
+            margin-top: 2rem;
+            width: 100%;
+            max-width: 600px;
+            text-align: center;
+        }
+
+        #portfolio h3 {
+            margin-bottom: 1rem;
+        }
+
+        #portfolio-items {
+            list-style-type: none;
+            padding: 0;
+        }
+
+        #portfolio-items li {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 0.5rem;
+        }
+
+        #total-value {
+            margin-top: 1rem;
+            font-size: 1.2rem;
+        }
+
+        footer {
+            background-color: #f8f8f8;
+            text-align: center;
+            padding: 1rem;
+            border-top: 1px solid #ddd;
+        }
+
+        #cash-out, #go-home, #save-game {
+            margin-top: 2rem;
+            padding: 1rem 2rem;
+            background-color: #e74c3c;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 1rem;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+            margin-right: 1rem;
+        }
+
+        #cash-out:hover, #go-home:hover, #save-game:hover {
+            background-color: #c0392b;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Elon Musk Tycoon</h1>
+        <p>Invest Elon Musk's $250 Billion</p>
+    </header>
+    <main>
+        <div id="money-remaining">$250,000,000,000</div>
+        <div class="investments-grid" id="investments">
+            <!-- Investment options will be dynamically generated here -->
+        </div>
+        <div id="portfolio">
+            <h3>Investment Portfolio</h3>
+            <ul id="portfolio-items"></ul>
+            <div id="total-value">Total Portfolio Value: $0</div>
+        </div>
+        <button id="cash-out">Cash Out</button>
+        <a href="index.html" id="go-home">Go Home</a>
+        <button id="save-game">Save Game</button>
+    </main>
+    <footer>
+        <p>&copy; 2024 Fun Projects</p>
+    </footer>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const initialMoney = 250000000000;
+            let remainingMoney = initialMoney;
+            let portfolioValue = 0;
+            const investments = [
+                { name: "Soda", price: 10, growthRate: 1.1 },
+                { name: "Tesla", price: 1000000000, growthRate: 1.1 },
+                { name: "SpaceX", price: 5000000000, growthRate: 1.15 },
+                { name: "Neuralink", price: 100000000, growthRate: 1.2 },
+                { name: "The Boring Company", price: 200000000, growthRate: 1.05 },
+                { name: "SolarCity", price: 500000000, growthRate: 1.1 }
+            ];
+            const availableInvestments = [
+                { name: "Starlink", price: 3000000000, growthRate: 1.18 },
+                { name: "OpenAI", price: 2500000000, growthRate: 1.25 },
+                { name: "Hyperloop", price: 1500000000, growthRate: 1.12 },
+                { name: "Selling fake products", price: 1000000, growthRate: 1.4 },
+                { name: "Printing Cash", price: 100000000, growthRate: 1.99 },
+                { name: "Bank Heist", price: 10000000000, growthRate: 2 },
+            ];
+            let portfolio = [];
+            let heistAttempts = 0;
+            const maxHeistAttempts = 3;
+
+            const moneyRemainingElement = document.getElementById('money-remaining');
+            const investmentsElement = document.getElementById('investments');
+            const portfolioItemsElement = document.getElementById('portfolio-items');
+            const totalValueElement = document.getElementById('total-value');
+            const cashOutButton = document.getElementById('cash-out');
+            const saveGameButton = document.getElementById('save-game');
+
+            function updateMoneyRemaining() {
+                moneyRemainingElement.textContent = `$${remainingMoney.toLocaleString()}`;
+            }
+
+            function updatePortfolioValue() {
+                portfolioValue = portfolio.reduce((total, investment) => total + investment.currentValue, 0);
+                totalValueElement.textContent = `Total Portfolio Value: $${portfolioValue.toLocaleString()}`;
+            }
+
+            function addInvestmentToPortfolio(investment) {
+                const portfolioItem = document.createElement('li');
+                portfolioItem.textContent = `${investment.name} - $${investment.currentValue.toLocaleString()}`;
+                portfolioItemsElement.appendChild(portfolioItem);
+                investment.element = portfolioItem;
+            }
+
+            function growInvestments() {
+                portfolio.forEach(investment => {
+                    investment.currentValue = Math.round(investment.currentValue * investment.growthRate);
+                    investment.element.textContent = `${investment.name} - $${investment.currentValue.toLocaleString()}`;
+                });
+                updatePortfolioValue();
+            }
+
+            function addInvestmentOption(investment) {
+                const investmentElement = document.createElement('div');
+                investmentElement.className = 'investment-card';
+                
+                const investmentName = document.createElement('h4');
+                investmentName.textContent = investment.name;
+                
+                const investmentPrice = document.createElement('p');
+                investmentPrice.textContent = `$${investment.price.toLocaleString()}`;
+                
+                const investButton = document.createElement('button');
+                investButton.textContent = 'Invest';
+                investButton.addEventListener('click', () => {
+                    if (investment.name === "Bank Heist") {
+                        heistAttempts++;
+                        if (heistAttempts > maxHeistAttempts) {
+                            alert("Oh no! You've attempted too many bank heists and have been caught! You're going to jail!");
+                            remainingMoney = initialMoney;
+                            portfolio = [];
+                            heistAttempts = 0;
+                            portfolioItemsElement.innerHTML = '';
+                            updateMoneyRemaining();
+                            updatePortfolioValue();
+                            saveGameState();
+                            return;
+                        }
+                    }
+                    if (remainingMoney >= investment.price) {
+                        remainingMoney -= investment.price;
+                        if (investment.price >= 1000000000) {
+                            const tax = Math.floor(investment.price / 1000000000) * 1000000;
+                            remainingMoney -= tax;
+                            alert("Congratulations! You've invested another billion and paid $1 million in taxes!");
+                        }
+                        const newInvestment = { ...investment, currentValue: investment.price };
+                        portfolio.push(newInvestment);
+                        addInvestmentToPortfolio(newInvestment);
+                        updateMoneyRemaining();
+                        updatePortfolioValue();
+                    } else {
+                        alert("You don't have enough money to invest in this venture.");
+                    }
+                });
+
+                investmentElement.appendChild(investmentName);
+                investmentElement.appendChild(investmentPrice);
+                investmentElement.appendChild(investButton);
+                investmentsElement.appendChild(investmentElement);
+            }
+
+            function saveGameState() {
+                const gameState = {
+                    remainingMoney,
+                    portfolio,
+                    heistAttempts,
+                };
+                document.cookie = `gameState=${JSON.stringify(gameState)}; path=/; max-age=31536000`;
+                console.log("Game Saved!");
+            }
+
+            function loadGameState() {
+                const cookies = document.cookie.split(';');
+                for (let cookie of cookies) {
+                    const [name, value] = cookie.trim().split('=');
+                    if (name === 'gameState') {
+                        const gameState = JSON.parse(value);
+                        remainingMoney = gameState.remainingMoney;
+                        portfolio = gameState.portfolio;
+                        heistAttempts = gameState.heistAttempts;
+                        updateMoneyRemaining();
+                        portfolio.forEach(investment => addInvestmentToPortfolio(investment));
+                        updatePortfolioValue();
+                        break;
+                    }
+                }
+            }
+
+            investments.forEach(investment => addInvestmentOption(investment));
+            loadGameState();
+            updateMoneyRemaining();
+
+            // Simulate growth of investments over time
+            setInterval(() => {
+                growInvestments();
+                saveGameState();
+            }, 5000); // Grow investments every 5 seconds
+
+            // Periodically add new investment options
+            setInterval(() => {
+                if (availableInvestments.length > 0) {
+                    const newInvestment = availableInvestments.shift();
+                    addInvestmentOption(newInvestment);
+                    saveGameState();
+                }
+            }, 15000); // Add new investment every 15 seconds
+
+            // Cash out functionality
+            cashOutButton.addEventListener('click', () => {
+                remainingMoney += portfolioValue;
+                portfolio = [];
+                portfolioItemsElement.innerHTML = '';
+                portfolioValue = 0;
+                updateMoneyRemaining();
+                updatePortfolioValue();
+                saveGameState();
+            });
+
+            // Save game manually
+            saveGameButton.addEventListener('click', saveGameState);
+        });
+    </script>
+</body>
+</html>
+
+
+
+
+
+
+{ name: "Selling fake products", price: 1000000, growthRate: 1.4 },

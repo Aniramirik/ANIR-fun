@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hugh the Destroyer</title>
+    <style>body {
+        font-family: Arial, sans-serif;
+        margin: 0;
+        padding: 0;
+        display: flex;
+        flex-direction: column;
+        min-height: 100vh;
+        background-color: #333;
+        color: #fff;
+    }
+    
+    header {
+        background-color: #444;
+        text-align: center;
+        padding: 2rem 1rem;
+        border-bottom: 1px solid #666;
+    }
+    
+    header h1 {
+        margin: 0;
+        font-size: 2rem;
+    }
+    
+    header p {
+        margin: 0.5rem 0 0;
+        font-size: 1rem;
+        color: #ccc;
+    }
+    
+    main {
+        flex: 1;
+        padding: 2rem 1rem;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+    
+    #score {
+        font-size: 1.5rem;
+        margin-bottom: 1rem;
+    }
+    
+    #game-area {
+        position: relative;
+        width: 90%;
+        max-width: 800px;
+        height: 500px;
+        border: 2px solid #666;
+        background-color: #222;
+        margin-bottom: 1rem;
+        overflow: hidden;
+    }
+    
+    .enemy {
+        position: absolute;
+        width: 50px;
+        height: 50px;
+        background-image: url('enemy.png'); /* Ensure this path is correct */
+        background-size: cover;
+        cursor: pointer;
+    }
+    
+    #restart, #go-home {
+        margin: 0.5rem;
+        padding: 1rem 2rem;
+        background-color: #e74c3c;
+        color: white;
+        border: none;
+        border-radius: 5px;
+        font-size: 1rem;
+        cursor: pointer;
+        text-decoration: none;
+    }
+    
+    #restart:hover, #go-home:hover {
+        background-color: #c0392b;
+    }
+    
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Hugh the Destroyer</h1>
+        <p>Destroy enemy soldiers to score points!</p>
+    </header>
+    <main>
+        <div id="score">Score: 0</div>
+        <div id="game-area">
+            <!-- Objects will be dynamically generated here -->
+        </div>
+        <button id="restart">Restart</button>
+        <a href="index.html" id="go-home">Go Home</a>
+    </main>
+    <footer>
+        <p>&copy; 2024 Fun Projects</p>
+    </footer>
+    <script>document.addEventListener('DOMContentLoaded', function() {
+        const gameArea = document.getElementById('game-area');
+        const scoreElement = document.getElementById('score');
+        const restartButton = document.getElementById('restart');
+        let score = 0;
+    
+        function createEnemy() {
+            const enemy = document.createElement('div');
+            enemy.classList.add('enemy');
+            enemy.style.top = `${Math.random() * (gameArea.clientHeight - 50)}px`;
+            enemy.style.left = `${Math.random() * (gameArea.clientWidth - 50)}px`;
+    
+            enemy.addEventListener('click', () => {
+                score += 10;
+                scoreElement.textContent = `Score: ${score}`;
+                enemy.remove();
+            });
+    
+            gameArea.appendChild(enemy);
+    
+            setTimeout(() => {
+                if (enemy.parentElement) {
+                    enemy.remove();
+                }
+            }, 5000);
+        }
+    
+        function startGame() {
+            score = 0;
+            scoreElement.textContent = `Score: ${score}`;
+            gameArea.innerHTML = '';
+    
+            for (let i = 0; i < 10; i++) {
+                createEnemy();
+            }
+    
+            const enemyInterval = setInterval(createEnemy, 2000);
+    
+            setTimeout(() => {
+                clearInterval(enemyInterval);
+                alert(`Game over! Your final score is ${score}`);
+            }, 30000);
+        }
+    
+        restartButton.addEventListener('click', startGame);
+    
+        startGame();
+    });
+    
+    </script>
+</body>
+</html>
+
+

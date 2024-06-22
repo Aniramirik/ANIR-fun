@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aura Bank</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+            background: linear-gradient(135deg, #f0f0f0, #cfcfcf);
+        }
+        h1 {
+            color: #333;
+            margin-bottom: 20px;
+        }
+        #camera-stream, #photo-output, #uploaded-photo {
+            width: 100%;
+            max-width: 500px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            margin-bottom: 20px;
+        }
+        button, input[type="file"] {
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s;
+            margin: 10px;
+        }
+        button:hover, input[type="file"]:hover {
+            background-color: #0056b3;
+        }
+        #remove-photo {
+            background-color: #dc3545;
+        }
+        #remove-photo:hover {
+            background-color: #c82333;
+        }
+        #result {
+            margin-top: 20px;
+            font-size: 1.5em;
+            color: #333;
+            font-weight: bold;
+        }
+        #restart, #go-home {
+        margin: 0.5rem;
+        padding: 1rem 2rem;
+        background-color: #e74c3c;
+        color: white;
+        border: none;
+        border-radius: 5px;
+        font-size: 1rem;
+        cursor: pointer;
+        text-decoration: none;
+    }
+    
+    #restart:hover, #go-home:hover {
+        background-color: #c0392b;
+    }
+    </style>
+</head>
+<body>
+    <a href="index.html" id="go-home">Go Home</a>
+    <h1>Aura Bank</h1>
+    <video id="camera-stream" autoplay></video>
+    <button id="take-photo">Take Photo</button>
+    <canvas id="photo-canvas" style="display:none;"></canvas>
+    <img id="photo-output" alt="Your photo will appear here">
+    <input type="file" id="upload-photo" accept="image/*">
+    <img id="uploaded-photo" alt="Uploaded photo will appear here">
+    <button id="remove-photo" style="display: none;">Remove Photo</button>
+    <div id="result">Aura Score: 0</div>
+
+    <script src="https://cdn.jsdelivr.net/npm/tesseract.js@4.0.0/dist/tesseract.min.js"></script>
+    <script>
+        const video = document.getElementById('camera-stream');
+        const canvas = document.getElementById('photo-canvas');
+        const photoOutput = document.getElementById('photo-output');
+        const uploadedPhoto = document.getElementById('uploaded-photo');
+        const result = document.getElementById('result');
+        const takePhotoButton = document.getElementById('take-photo');
+        const uploadPhotoInput = document.getElementById('upload-photo');
+        const removePhotoButton = document.getElementById('remove-photo');
+
+        let auraScore = 0;
+
+        // Get access to the camera
+        navigator.mediaDevices.getUserMedia({ video: true })
+            .then(stream => {
+                video.srcObject = stream;
+            })
+            .catch(error => {
+                console.error('Error accessing the camera', error);
+            });
+
+        // Take a photo and increase aura score
+        takePhotoButton.addEventListener('click', () => {
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+            const context = canvas.getContext('2d');
+            context.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+            // Convert the canvas to an image
+            const dataURL = canvas.toDataURL('image/png');
+            photoOutput.src = dataURL;
+            photoOutput.style.display = 'block';
+
+            // Increment the aura score
+            auraScore += 1;
+            result.textContent = `Aura Score: ${auraScore}`;
+        });
+
+        // Handle photo upload and OCR processing
+        uploadPhotoInput.addEventListener('change', (event) => {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    uploadedPhoto.src = e.target.result;
+                    uploadedPhoto.style.display = 'block';
+                    removePhotoButton.style.display = 'block';
+
+                    // Use Tesseract.js to extract text from the image
+                    Tesseract.recognize(
+                        e.target.result,
+                        'eng',
+                        { logger: m => console.log(m) }
+                    ).then(({ data: { text } }) => {
+                        console.log(text);
+                        const auraChange = parseAuraChange(text);
+                        if (auraChange !== null) {
+                            auraScore += auraChange;
+                            result.textContent = `Aura Score: ${auraScore}`;
+                        } else {
+                            result.textContent = 'No valid aura change found in the image.';
+                        }
+                    }).catch(err => {
+                        console.error('Error processing image:', err);
+                        result.textContent = 'Error processing image.';
+                    });
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+
+        // Remove uploaded photo
+        removePhotoButton.addEventListener('click', () => {
+            uploadedPhoto.style.display = 'none';
+            removePhotoButton.style.display = 'none';
+            uploadPhotoInput.value = '';  // Clear the file input
+            result.textContent = 'Aura Score: ' + auraScore;  // Reset message
+        });
+
+        function parseAuraChange(text) {
+            const match = text.match(/([+-]?\d+)\s*aura/i);
+            if (match) {
+                const value = parseInt(match[1], 10);
+                return isNaN(value) ? null : value;
+            }
+            return null;
+        }
+    </script>
+
+</body>
+</html>
+
+
+
+
+

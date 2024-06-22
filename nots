@@ -1,0 +1,36 @@
+    #cash-out, #go-home {
+        margin-top: 2rem;
+        padding: 1rem 2rem;
+        background-color: #e74c3c;
+        color: white;
+        border: none;
+        border-radius: 5px;
+        font-size: 1rem;
+        cursor: pointer;
+        text-decoration: none;
+        display: inline-block;
+        margin-right: 1rem;
+    }
+
+    <a href="index.html" id="go-home">Go Home</a>
+
+
+
+    <option value="CompanyA">Your coffee MOM&CO</option>
+    <option value="CompanyB">Billys big belly work shop</option>
+    <option value="CompanyC">Daves&jaks</option>
+    <option value="CompanyD">daylymilkey</option>
+
+
+    let stockPrices = {
+        CompanyA: 50,
+        CompanyB: 75,
+        CompanyC: 100,
+        CompanyD: 50
+    };
+    let yourStocks = {
+        CompanyA: 0,
+        CompanyB: 0,
+        CompanyC: 0,
+        CompanyD: 0
+    };

@@ -1,0 +1,507 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Business Tycoon Game</title>
+    <style>
+        body {
+            margin: 0;
+            font-family: 'Arial', sans-serif;
+            background-color: #f4f4f4;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            overflow: hidden;
+        }
+        header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        header h1 {
+            font-size: 3rem;
+            color: #333;
+        }
+        header p {
+            font-size: 1.2rem;
+            color: #666;
+        }
+        #stats-container {
+            display: flex;
+            justify-content: space-around;
+            width: 80%;
+            max-width: 800px;
+            margin-bottom: 20px;
+        }
+        .stat {
+            background-color: white;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            padding: 20px;
+            width: 30%;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            transition: transform 0.3s;
+        }
+        .stat:hover {
+            transform: scale(1.05);
+        }
+        .stat h2 {
+            margin: 0 0 10px;
+            font-size: 1.5rem;
+        }
+        .stat p {
+            margin: 0;
+            font-size: 1.2rem;
+            color: #666;
+        }
+        .stat .value {
+            font-size: 2.5rem;
+            color: #333;
+        }
+        #actions-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-around;
+            width: 80%;
+            max-width: 800px;
+        }
+        .action {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            margin: 10px;
+            cursor: pointer;
+            border-radius: 10px;
+            font-size: 1.2rem;
+            transition: background-color 0.3s, transform 0.3s;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+        .action:hover {
+            background-color: #45a049;
+            transform: scale(1.05);
+        }
+        #feedback {
+            margin-top: 20px;
+            font-size: 1.5rem;
+            color: #333;
+            text-align: center;
+        }
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0, 0, 0, 0.5);
+        }
+        .modal-content {
+            background-color: white;
+            margin: 15% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 80%;
+            max-width: 600px;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+        }
+        .close:hover,
+        .close:focus {
+            color: black;
+            text-decoration: none;
+            cursor: pointer;
+        }
+        .modal input, .modal select {
+            padding: 10px;
+            margin: 10px 0;
+            font-size: 1rem;
+            width: calc(100% - 22px);
+        }
+        .modal button {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            margin: 10px;
+            cursor: pointer;
+            border-radius: 10px;
+            font-size: 1rem;
+            transition: background-color 0.3s;
+        }
+        .modal button:hover {
+            background-color: #45a049;
+        }
+        .modal p {
+            font-size: 1.2rem;
+            color: #666;
+        }
+        #cash-out, #go-home {
+        margin-top: 2rem;
+        padding: 1rem 2rem;
+        background-color: #e74c3c;
+        color: white;
+        border: none;
+        border-radius: 5px;
+        font-size: 1rem;
+        cursor: pointer;
+        text-decoration: none;
+        display: inline-block;
+        margin-right: 1rem;
+    }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Business Tycoon</h1>
+        <a href="index.html" id="go-home">Go Home</a>
+        <p id="business-name">Name your business</p>
+        <input type="text" id="business-name-input" placeholder="Enter business name">
+        <button id="name-business">Name Business</button>
+    </header>
+    <div id="stats-container">
+        <div class="stat">
+            <h2>Wealth</h2>
+            <p class="value" id="wealth">1000</p>
+        </div>
+        <div class="stat">
+            <h2>Revenue</h2>
+            <p class="value" id="revenue">100</p>
+        </div>
+        <div class="stat">
+            <h2>Expenses</h2>
+            <p class="value" id="expenses">50</p>
+        </div>
+    </div>
+    <div id="actions-container">
+        <button class="action" id="invest">Invest</button>
+        <button class="action" id="increase-revenue">Increase Revenue</button>
+        <button class="action" id="reduce-expenses">Reduce Expenses</button>
+        <button class="action" id="marketing">Marketing</button>
+        <button class="action" id="hire">Hire Employees</button>
+        <button class="action" id="open-stock-market">Open Stock Market</button>
+        <button class="action" id="make-deal">Make a Business Deal</button>
+        <button class="action" id="view-staff">View Staff</button>
+    </div>
+    <div id="feedback"></div>
+
+    <!-- Stock Market Modal -->
+    <div id="stockMarketModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>Stock Market</h2>
+            <div>
+                <select id="stockCompany">
+                    <option value="CompanyA">Your coffee MOM&CO</option>
+                    <option value="CompanyB">Billys big belly work shop</option>
+                    <option value="CompanyC">Daves&jaks</option>
+                    <option value="CompanyD">daylymilkey</option>
+                </select>
+                <p>Stock Price: $<span id="stockPrice">50</span></p>
+                <p>Your Stocks: <span id="yourStocks">0</span></p>
+                <input type="number" id="stockAmount" placeholder="Amount">
+                <button id="buyStock">Buy</button>
+                <button id="sellStock">Sell</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Business Deal Modal -->
+    <div id="dealModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>Business Deal</h2>
+            <div>
+                <p>Cost: $<span id="dealCost">200</span></p>
+                <button id="makeDeal">Make Deal</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Staff Modal -->
+    <div id="staffModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>Staff Management</h2>
+            <div>
+                <p>Staff Count: <span id="staffCount">0</span></p>
+                <p>Monthly Salary: $<span id="staffSalary">0</span></p>
+                <button id="payStaff">Pay Staff</button>
+                <p id="strikeStatus"></p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const wealthElement = document.getElementById('wealth');
+            const revenueElement = document.getElementById('revenue');
+            const expensesElement = document.getElementById('expenses');
+            const feedbackElement = document.getElementById('feedback');
+            const stockMarketModal = document.getElementById('stockMarketModal');
+            const dealModal = document.getElementById('dealModal');
+            const staffModal = document.getElementById('staffModal');
+            const closeModalButtons = document.querySelectorAll('.close');
+            const businessNameElement = document.getElementById('business-name');
+            const businessNameInput = document.getElementById('business-name-input');
+            const nameBusinessButton = document.getElementById('name-business');
+            const stockCompanySelect = document.getElementById('stockCompany');
+            const staffCountElement = document.getElementById('staffCount');
+            const staffSalaryElement = document.getElementById('staffSalary');
+            const strikeStatusElement = document.getElementById('strikeStatus');
+
+            let wealth = 1000;
+            let revenue = 100;
+            let expenses = 50;
+            let staffCount = 0;
+            let staffSalary = 0;
+            let staffStrike = false;
+            let stockPrices = {
+        CompanyA: 50,
+        CompanyB: 75,
+        CompanyC: 100,
+        CompanyD: 50
+    };
+    let yourStocks = {
+        CompanyA: 0,
+        CompanyB: 0,
+        CompanyC: 0,
+        CompanyD: 0
+    };
+            let selectedCompany = 'CompanyA';
+
+            function updateStats() {
+                wealthElement.textContent = wealth;
+                revenueElement.textContent = revenue;
+                expensesElement.textContent = expenses;
+                staffCountElement.textContent = staffCount;
+                staffSalaryElement.textContent = staffSalary;
+
+                if (wealth <= 0) {
+                    alert("Game Over! You ran out of wealth.");
+                    resetGame();
+                }
+            }
+
+            function resetGame() {
+                wealth = 1000;
+                revenue = 100;
+                expenses = 50;
+                staffCount = 0;
+                staffSalary = 0;
+                staffStrike = false;
+                yourStocks = {
+                    CompanyA: 0,
+                    CompanyB: 0,
+                    CompanyC: 0,
+                    CompanyD: 0
+                };
+                updateStats();
+                updateStockMarket();
+            }
+
+            function updateStockMarket() {
+                document.getElementById('stockPrice').textContent = stockPrices[selectedCompany];
+                document.getElementById('yourStocks').textContent = yourStocks[selectedCompany];
+            }
+
+            function performAction(action) {
+                let feedbackMessage = '';
+                switch(action) {
+                    case 'invest':
+                        if (wealth >= 100) {
+                            wealth -= 100;
+                            revenue += 20;
+                            feedbackMessage = "You invested $100 and increased your revenue.";
+                        } else {
+                            feedbackMessage = "Not enough wealth to invest.";
+                        }
+                        break;
+                    case 'increase-revenue':
+                        if (wealth >= 200) {
+                            wealth -= 200;
+                            revenue += 50;
+                            feedbackMessage = "You spent $200 and significantly increased your revenue.";
+                        } else {
+                            feedbackMessage = "Not enough wealth to increase revenue.";
+                        }
+                        break;
+                    case 'reduce-expenses':
+                        if (wealth >= 50) {
+                            wealth -= 50;
+                            expenses -= 10;
+                            feedbackMessage = "You spent $50 and reduced your expenses.";
+                        } else {
+                            feedbackMessage = "Not enough wealth to reduce expenses.";
+                        }
+                        break;
+                    case 'marketing':
+                        if (wealth >= 150) {
+                            wealth -= 150;
+                            revenue += 30;
+                            feedbackMessage = "You spent $150 on marketing and increased your revenue.";
+                        } else {
+                            feedbackMessage = "Not enough wealth to spend on marketing.";
+                        }
+                        break;
+                    case 'hire':
+                        if (wealth >= 300) {
+                            wealth -= 300;
+                            revenue += 70;
+                            expenses += 20;
+                            staffCount += 1;
+                            staffSalary += 100;
+                            feedbackMessage = "You spent $300 to hire employees, increasing revenue but also expenses.";
+                        } else {
+                            feedbackMessage = "Not enough wealth to hire employees.";
+                        }
+                        break;
+                }
+                feedbackElement.textContent = feedbackMessage;
+                updateStats();
+            }
+
+            function buyStock() {
+                const amount = parseInt(document.getElementById('stockAmount').value);
+                if (isNaN(amount) || amount <= 0) {
+                    feedbackElement.textContent = "Please enter a valid amount.";
+                    return;
+                }
+                const cost = amount * stockPrices[selectedCompany];
+                if (wealth >= cost) {
+                    wealth -= cost;
+                    yourStocks[selectedCompany] += amount;
+                    feedbackElement.textContent = `You bought ${amount} stocks of ${selectedCompany} for $${cost}.`;
+                } else {
+                    feedbackElement.textContent = "Not enough wealth to buy stocks.";
+                }
+                updateStats();
+                updateStockMarket();
+            }
+
+            function sellStock() {
+                const amount = parseInt(document.getElementById('stockAmount').value);
+                if (isNaN(amount) || amount <= 0) {
+                    feedbackElement.textContent = "Please enter a valid amount.";
+                    return;
+                }
+                if (yourStocks[selectedCompany] >= amount) {
+                    const earnings = amount * stockPrices[selectedCompany];
+                    wealth += earnings;
+                    yourStocks[selectedCompany] -= amount;
+                    feedbackElement.textContent = `You sold ${amount} stocks of ${selectedCompany} for $${earnings}.`;
+                } else {
+                    feedbackElement.textContent = "Not enough stocks to sell.";
+                }
+                updateStats();
+                updateStockMarket();
+            }
+
+            function fluctuateStockPrices() {
+                for (let company in stockPrices) {
+                    const change = Math.random() * 20 - 10; // Random fluctuation between -10 and +10
+                    stockPrices[company] = Math.max(1, stockPrices[company] + change); // Ensure price doesn't go below 1
+                }
+                updateStockMarket();
+            }
+
+            function makeDeal() {
+                const dealCost = parseInt(document.getElementById('dealCost').textContent);
+                if (wealth >= dealCost) {
+                    wealth -= dealCost;
+                    revenue += 100;
+                    feedbackElement.textContent = "You made a successful business deal and increased your revenue!";
+                } else {
+                    feedbackElement.textContent = "Not enough wealth to make a deal.";
+                }
+                updateStats();
+            }
+
+            function payStaff() {
+                if (wealth >= staffSalary) {
+                    wealth -= staffSalary;
+                    staffStrike = false;
+                    feedbackElement.textContent = "You paid your staff.";
+                } else {
+                    feedbackElement.textContent = "Not enough wealth to pay your staff. They are on strike!";
+                    staffStrike = true;
+                }
+                updateStrikeStatus();
+                updateStats();
+            }
+
+            function updateStrikeStatus() {
+                if (staffStrike) {
+                    strikeStatusElement.textContent = "Status: On Strike";
+                    revenue -= staffCount * 50; // Decrease revenue due to strike
+                } else {
+                    strikeStatusElement.textContent = "Status: Working";
+                }
+            }
+
+            document.getElementById('invest').addEventListener('click', () => performAction('invest'));
+            document.getElementById('increase-revenue').addEventListener('click', () => performAction('increase-revenue'));
+            document.getElementById('reduce-expenses').addEventListener('click', () => performAction('reduce-expenses'));
+            document.getElementById('marketing').addEventListener('click', () => performAction('marketing'));
+            document.getElementById('hire').addEventListener('click', () => performAction('hire'));
+            document.getElementById('open-stock-market').addEventListener('click', () => stockMarketModal.style.display = 'block');
+            document.getElementById('make-deal').addEventListener('click', () => dealModal.style.display = 'block');
+            document.getElementById('view-staff').addEventListener('click', () => staffModal.style.display = 'block');
+            closeModalButtons.forEach(btn => btn.addEventListener('click', () => {
+                stockMarketModal.style.display = 'none';
+                dealModal.style.display = 'none';
+                staffModal.style.display = 'none';
+            }));
+            window.addEventListener('click', (event) => {
+                if (event.target == stockMarketModal || event.target == dealModal || event.target == staffModal) {
+                    stockMarketModal.style.display = 'none';
+                    dealModal.style.display = 'none';
+                    staffModal.style.display = 'none';
+                }
+            });
+            document.getElementById('buyStock').addEventListener('click', buyStock);
+            document.getElementById('sellStock').addEventListener('click', sellStock);
+            document.getElementById('makeDeal').addEventListener('click', makeDeal);
+            document.getElementById('payStaff').addEventListener('click', payStaff);
+            stockCompanySelect.addEventListener('change', (event) => {
+                selectedCompany = event.target.value;
+                updateStockMarket();
+            });
+            nameBusinessButton.addEventListener('click', () => {
+                const businessName = businessNameInput.value.trim();
+                if (businessName) {
+                    businessNameElement.textContent = businessName;
+                    businessNameInput.style.display = 'none';
+                    nameBusinessButton.style.display = 'none';
+                }
+            });
+
+            setInterval(() => {
+                if (!staffStrike) {
+                    wealth += revenue - expenses;
+                }
+                updateStats();
+                fluctuateStockPrices();
+            }, 2000); // Update wealth every 2 seconds and fluctuate stock prices
+        });
+    </script>
+</body>
+</html>
+
+
+
+
+

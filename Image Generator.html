@@ -1,0 +1,537 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Advanced Hacking</title>
+    <style>
+        body {
+            font-family: 'Courier New', Courier, monospace;
+            background-color: #000;
+            color: #0f0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+            padding: 0 20px;
+        }
+        h1 {
+            color: #0f0;
+        }
+        #terminal {
+            background-color: #000;
+            border: 2px solid #0f0;
+            padding: 20px;
+            width: 100%;
+            max-width: 800px;
+            height: 400px;
+            overflow-y: auto;
+            box-shadow: 0 0 10px #0f0;
+        }
+        #input-area {
+            display: flex;
+            margin-top: 20px;
+        }
+        input, button {
+            padding: 10px;
+            background-color: #222;
+            color: #0f0;
+            border: 2px solid #0f0;
+            border-radius: 5px;
+            font-size: 16px;
+            margin-right: 10px;
+            flex: 1;
+        }
+        button {
+            flex: 0;
+            cursor: pointer;
+        }
+        #progress {
+            width: 100%;
+            background-color: #222;
+            border: 2px solid #0f0;
+            border-radius: 5px;
+            margin-top: 20px;
+        }
+        #progress-bar {
+            width: 0;
+            height: 20px;
+            background-color: #0f0;
+            border-radius: 5px;
+        }
+        #home-button {
+            margin-top: 20px;
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        #home-button:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Advanced Hacking </h1>
+    <div id="terminal"></div>
+    <div id="input-area">
+        <input type="text" id="command-input" placeholder="Enter command...">
+        <button id="send-command">Send</button>
+    </div>
+    <a href="index.html"><button id="home-button">Go Home</button></a>
+    <div id="progress">
+        <div id="progress-bar"></div>
+    </div>
+
+    <script>
+        const terminal = document.getElementById('terminal');
+        const commandInput = document.getElementById('command-input');
+        const sendCommandButton = document.getElementById('send-command');
+        const homeButton = document.getElementById('home-button');
+        const progressBar = document.getElementById('progress-bar');
+
+        // User state
+        let currentUser = getCookie('currentUser') || '';
+        if (!currentUser) {
+            currentUser = prompt("Enter your username:");
+            setCookie('currentUser', currentUser, 365);
+        }
+
+        // Initial state
+        let users = JSON.parse(getCookie('users') || '{}');
+        if (!users[currentUser]) {
+            users[currentUser] = {
+                balance: 2.345,
+                transactions: [],
+                group: null,
+                role: 'member',
+                chat: []
+            };
+            saveUsersState();
+        }
+
+        // Groups state
+        let groups = JSON.parse(getCookie('groups') || '[]');
+
+        function getCurrentUser() {
+            return users[currentUser];
+        }
+
+        sendCommandButton.addEventListener('click', () => {
+            const command = commandInput.value.trim();
+            if (command) {
+                processCommand(command);
+                commandInput.value = '';
+            }
+        });
+
+        commandInput.addEventListener('keypress', (event) => {
+            if (event.key === 'Enter') {
+                const command = commandInput.value.trim();
+                if (command) {
+                    processCommand(command);
+                    commandInput.value = '';
+                }
+            }
+        });
+
+        homeButton.addEventListener('click', () => {
+            terminal.innerHTML = `
+                <div>Initializing hacking simulator...</div>
+                <div>Loading modules...</div>
+                <div>Welcome, ${currentUser}!</div>
+                <div>Ready. Type 'hack' to begin.</div>
+                <div>Type 'send' to simulate a Bitcoin transfer.</div>
+                <div>Type 'hacknow' to view Bitcoin wallet.</div>
+                <div>Type 'elonhack' to hack Elon Musk's Twitter (simulation).</div>
+                <div>Type 'planattack' to plan an attack (simulation).</div>
+                <div>Type 'helpme' to hack banks and help the poor (simulation).</div>
+                <div>Type 'creategroup' to create a new hacking group.</div>
+                <div>Type 'joingroup' to join an existing hacking group.</div>
+                <div>Type 'recruit' to recruit a new member to your hacking group.</div>
+                <div>Type 'group' to view your hacking group members.</div>
+                <div>Type 'switchuser' to switch to a different user.</div>
+                <div>Type 'rivalhack' to hack the rival group (simulation).</div>
+                <div>Type 'chat' to chat with your group members.</div>
+                <div>Type 'anir' to see the developer's Easter egg.</div>
+            `;
+        });
+
+        function processCommand(command) {
+            terminal.innerHTML += `<div>> ${command}</div>`;
+            terminal.scrollTop = terminal.scrollHeight;
+
+            if (command.toLowerCase() === 'hack') {
+                simulateProgress('Hacking in progress...');
+            } else if (command.toLowerCase() === 'status') {
+                terminal.innerHTML += `<div>System status: All systems nominal.</div>`;
+            } else if (command.toLowerCase() === 'hacknow') {
+                displayWallet();
+            } else if (command.toLowerCase() === 'send') {
+                const amount = prompt("Enter the amount of BTC to send:");
+                const address = prompt("Enter the Bitcoin address:");
+                if (amount && address) {
+                    const confirmTransfer = confirm(`Are you sure you want to send ${amount} BTC to ${address}?`);
+                    if (confirmTransfer) {
+                        simulateBitcoinTransfer(amount, address);
+                    } else {
+                        terminal.innerHTML += `<div>Bitcoin transfer cancelled.</div>`;
+                    }
+                } else {
+                    terminal.innerHTML += `<div>Invalid input. Use: send</div>`;
+                }
+            } else if (command.toLowerCase() === 'elonhack') {
+                performAttack('Elon Musk\'s Twitter', 'elon');
+            } else if (command.toLowerCase() === 'planattack') {
+                performAttack('global attack', 'attack');
+            } else if (command.toLowerCase() === 'helpme') {
+                performAttack('hacking international banks to help the poor', 'help');
+            } else if (command.toLowerCase() === 'anir') {
+                terminal.innerHTML += `<div>Developed by Anir, the amazing developer!</div>`;
+            } else if (command.toLowerCase() === 'creategroup') {
+                createGroup();
+            } else if (command.toLowerCase() === 'joingroup') {
+                joinGroup();
+            } else if (command.toLowerCase() === 'recruit') {
+                recruitMember();
+            } else if (command.toLowerCase() === 'group') {
+                displayGroup();
+            } else if (command.toLowerCase() === 'switchuser') {
+                switchUser();
+            } else if (command.toLowerCase() === 'rivalhack') {
+                performRivalHack();
+            } else if (command.toLowerCase().startsWith('role ')) {
+                assignRole(command.split(' ')[1]);
+            } else if (command.toLowerCase() === 'chat') {
+                chatWithGroup();
+            } else {
+                terminal.innerHTML += `<div>Unknown command: ${command}</div>`;
+            }
+            terminal.scrollTop = terminal.scrollHeight;
+        }
+
+        function simulateProgress(message) {
+            let progress = 0;
+            terminal.innerHTML += `<div>${message}</div>`;
+            const interval = setInterval(() => {
+                if (progress < 100) {
+                    progress += 1;
+                    progressBar.style.width = progress + '%';
+                } else {
+                    clearInterval(interval);
+                    terminal.innerHTML += `<div>Hacking complete. Access granted!</div>`;
+                    terminal.scrollTop = terminal.scrollHeight;
+                }
+            }, 100);
+        }
+
+        function simulateBitcoinTransfer(amount, address) {
+            amount = parseFloat(amount);
+            let user = getCurrentUser();
+            if (amount > user.balance) {
+                terminal.innerHTML += `<div>Insufficient funds. Transfer failed.</div>`;
+                return;
+            }
+            let progress = 0;
+            terminal.innerHTML += `<div>Initiating Bitcoin transfer of ${amount} BTC to ${address}...</div>`;
+            const interval = setInterval(() => {
+                if (progress < 100) {
+                    progress += 1;
+                    progressBar.style.width = progress + '%';
+                } else {
+                    clearInterval(interval);
+                    user.balance -= amount;
+                    user.transactions.push({ date: new Date().toISOString().split('T')[0], amount: `-${amount} BTC` });
+                    saveUsersState();
+                    terminal.innerHTML += `<div>Transfer complete. ${amount} BTC has been sent to ${address}.</div>`;
+                    terminal.scrollTop = terminal.scrollHeight;
+                }
+            }, 100);
+        }
+
+        function performAttack(target, type) {
+            let user = getCurrentUser();
+            if (user.balance < 1) {
+                terminal.innerHTML += `<div>Insufficient funds. You need at least 1 BTC to perform this attack.</div>`;
+                return;
+            }
+            const locations = ['New York', 'London', 'Tokyo', 'Berlin'];
+            const chosenLocation = prompt(`Choose the location for the ${target} attack:\n${locations.join(', ')}`);
+            if (!locations.includes(chosenLocation)) {
+                terminal.innerHTML += `<div>Invalid location. Attack cancelled.</div>`;
+                return;
+            }
+
+            const risk = Math.random();
+            simulateProgress(`Performing ${target} at ${chosenLocation}...`);
+            setTimeout(() => {
+                if (risk < 0.3) {
+                    terminal.innerHTML += `<div>You were caught by the police! Restarting simulation...</div>`;
+                    resetUserState();
+                } else {
+                    user.balance -= 1;
+                    user.transactions.push({ date: new Date().toISOString().split('T')[0], amount: `-1 BTC` });
+                    saveUsersState();
+                    terminal.innerHTML += `<div>${target.charAt(0).toUpperCase() + target.slice(1)} at ${chosenLocation} successful!</div>`;
+                }
+                terminal.scrollTop = terminal.scrollHeight;
+            }, 3000);
+        }
+
+        function displayWallet() {
+            let user = getCurrentUser();
+            terminal.innerHTML += `<div>Accessing Bitcoin wallet...</div>`;
+            terminal.innerHTML += `<div>Balance: ${user.balance.toFixed(3)} BTC</div>`;
+            terminal.innerHTML += `<div>Recent transactions:</div>`;
+            user.transactions.forEach(tx => {
+                terminal.innerHTML += `<div>${tx.date}: ${tx.amount}</div>`;
+            });
+            terminal.scrollTop = terminal.scrollHeight;
+        }
+
+        function createGroup() {
+            const groupName = prompt("Enter the name of your new hacking group:");
+            if (groupName) {
+                const group = {
+                    name: groupName,
+                    members: [currentUser],
+                    roles: { [currentUser]: 'leader' },
+                    chat: []
+                };
+                groups.push(group);
+                getCurrentUser().group = groupName;
+                saveGroupsState();
+                saveUsersState();
+                terminal.innerHTML += `<div>Group '${groupName}' created successfully!</div>`;
+            } else {
+                terminal.innerHTML += `<div>Invalid group name. Use: creategroup</div>`;
+            }
+            terminal.scrollTop = terminal.scrollHeight;
+        }
+
+        function joinGroup() {
+            const groupName = prompt("Enter the name of the group you want to join:");
+            const group = groups.find(g => g.name === groupName);
+            if (group) {
+                group.members.push(currentUser);
+                group.roles[currentUser] = 'member';
+                getCurrentUser().group = groupName;
+                saveGroupsState();
+                saveUsersState();
+                terminal.innerHTML += `<div>You have joined the group '${groupName}'!</div>`;
+            } else {
+                terminal.innerHTML += `<div>Group not found. Use: joingroup</div>`;
+            }
+            terminal.scrollTop = terminal.scrollHeight;
+        }
+
+        function recruitMember() {
+            if (!getCurrentUser().group) {
+                terminal.innerHTML += `<div>You are not part of any group. Use: creategroup or joingroup</div>`;
+                return;
+            }
+            const group = groups.find(g => g.name === getCurrentUser().group);
+            if (group.roles[currentUser] !== 'leader' && group.roles[currentUser] !== 'admin') {
+                terminal.innerHTML += `<div>You do not have permission to recruit members.</div>`;
+                return;
+            }
+            const name = prompt("Enter the name of the person you want to recruit:");
+            if (name) {
+                group.members.push(name);
+                group.roles[name] = 'member';
+                if (!users[name]) {
+                    users[name] = {
+                        balance: 2.345,
+                        transactions: [],
+                        group: group.name,
+                        role: 'member',
+                        chat: []
+                    };
+                } else {
+                    users[name].group = group.name;
+                }
+                saveGroupsState();
+                saveUsersState();
+                terminal.innerHTML += `<div>${name} has been recruited to your hacking group!</div>`;
+            } else {
+                terminal.innerHTML += `<div>Invalid input. Use: recruit</div>`;
+            }
+            terminal.scrollTop = terminal.scrollHeight;
+        }
+
+        function displayGroup() {
+            const user = getCurrentUser();
+            if (!user.group) {
+                terminal.innerHTML += `<div>You are not part of any group. Use: creategroup or joingroup</div>`;
+                return;
+            }
+            const group = groups.find(g => g.name === user.group);
+            terminal.innerHTML += `<div>Your hacking group '${group.name}':</div>`;
+            group.members.forEach(member => {
+                terminal.innerHTML += `<div>Name: ${member}, Role: ${group.roles[member]}</div>`;
+            });
+            terminal.scrollTop = terminal.scrollHeight;
+        }
+
+        function switchUser() {
+            currentUser = prompt("Enter your username:");
+            setCookie('currentUser', currentUser, 365);
+            if (!users[currentUser]) {
+                users[currentUser] = {
+                    balance: 2.345,
+                    transactions: [],
+                    group: null,
+                    role: 'member',
+                    chat: []
+                };
+                saveUsersState();
+            }
+            terminal.innerHTML += `<div>Switched to user: ${currentUser}</div>`;
+        }
+
+        function assignRole(username) {
+            const user = getCurrentUser();
+            if (!user.group) {
+                terminal.innerHTML += `<div>You are not part of any group. Use: creategroup or joingroup</div>`;
+                return;
+            }
+            const group = groups.find(g => g.name === user.group);
+            if (group.roles[currentUser] !== 'leader' && group.roles[currentUser] !== 'admin') {
+                terminal.innerHTML += `<div>You do not have permission to assign roles.</div>`;
+                return;
+            }
+            const member = group.members.find(m => m === username);
+            if (member) {
+                const newRole = prompt("Enter the new role (admin, leader, member):");
+                if (['admin', 'leader', 'member'].includes(newRole)) {
+                    group.roles[username] = newRole;
+                    saveGroupsState();
+                    terminal.innerHTML += `<div>${username} has been assigned the role of ${newRole}!</div>`;
+                } else {
+                    terminal.innerHTML += `<div>Invalid role. Use: role <username></div>`;
+                }
+            } else {
+                terminal.innerHTML += `<div>User not found in your group. Use: role <username></div>`;
+            }
+            terminal.scrollTop = terminal.scrollHeight;
+        }
+
+        function performRivalHack() {
+            let user = getCurrentUser();
+            if (user.balance < 1) {
+                terminal.innerHTML += `<div>Insufficient funds. You need at least 1 BTC to perform this hack.</div>`;
+                return;
+            }
+
+            const risk = Math.random();
+            simulateProgress('Hacking the rival group...');
+            setTimeout(() => {
+                if (risk < 0.3) {
+                    terminal.innerHTML += `<div>Your hack attempt was detected by the rival group! Restarting simulation...</div>`;
+                    resetUserState();
+                } else {
+                    user.balance += 1;
+                    user.transactions.push({ date: new Date().toISOString().split('T')[0], amount: `+1 BTC` });
+                    saveUsersState();
+                    terminal.innerHTML += `<div>Hack successful! You gained 1 BTC from the rival group.</div>`;
+                }
+                terminal.scrollTop = terminal.scrollHeight;
+            }, 3000);
+        }
+
+        function chatWithGroup() {
+            const user = getCurrentUser();
+            if (!user.group) {
+                terminal.innerHTML += `<div>You are not part of any group. Use: creategroup or joingroup</div>`;
+                return;
+            }
+            const message = prompt("Enter your message:");
+            if (message) {
+                const group = groups.find(g => g.name === user.group);
+                group.chat.push({ sender: currentUser, message: message });
+                saveGroupsState();
+                displayChatMessages();
+            }
+        }
+
+        function displayChatMessages() {
+            const user = getCurrentUser();
+            if (!user.group) {
+                terminal.innerHTML += `<div>You are not part of any group. Use: creategroup or joingroup</div>`;
+                return;
+            }
+            const group = groups.find(g => g.name === user.group);
+            terminal.innerHTML += `<div>Group Chat:</div>`;
+            group.chat.forEach(chat => {
+                terminal.innerHTML += `<div>${chat.sender}: ${chat.message}</div>`;
+            });
+            terminal.scrollTop = terminal.scrollHeight;
+        }
+
+        function saveUsersState() {
+            setCookie('users', JSON.stringify(users), 365);
+        }
+
+        function saveGroupsState() {
+            setCookie('groups', JSON.stringify(groups), 365);
+        }
+
+        function resetUserState() {
+            users[currentUser] = {
+                balance: 2.345,
+                transactions: [],
+                group: null,
+                role: 'member',
+                chat: []
+            };
+            saveUsersState();
+        }
+
+        function setCookie(name, value, days) {
+            const d = new Date();
+            d.setTime(d.getTime() + (days*24*60*60*1000));
+            const expires = "expires="+ d.toUTCString();
+            document.cookie = name + "=" + value + ";" + expires + ";path=/";
+        }
+
+        function getCookie(name) {
+            const nameEQ = name + "=";
+            const ca = document.cookie.split(';');
+            for(let i = 0; i < ca.length; i++) {
+                let c = ca[i];
+                while (c.charAt(0) === ' ') c = c.substring(1, c.length);
+                if (c.indexOf(nameEQ) === 0) return c.substring(nameEQ.length, c.length);
+            }
+            return null;
+        }
+
+        // Initial fake terminal output
+        terminal.innerHTML = `
+            <div>Initializing hacking simulator...</div>
+            <div>Loading modules...</div>
+            <div>Welcome, ${currentUser}!</div>
+            <div>Ready. Type 'hack' to begin.</div>
+            <div>Type 'send' to simulate a Bitcoin transfer.</div>
+            <div>Type 'hacknow' to view Bitcoin wallet.</div>
+            <div>Type 'elonhack' to hack Elon Musk's Twitter (simulation).</div>
+            <div>Type 'planattack' to plan an attack (simulation).</div>
+            <div>Type 'helpme' to hack banks and help the poor (simulation).</div>
+            <div>Type 'creategroup' to create a new hacking group.</div>
+            <div>Type 'joingroup' to join an existing hacking group.</div>
+            <div>Type 'recruit' to recruit a new member to your hacking group.</div>
+            <div>Type 'group' to view your hacking group members.</div>
+            <div>Type 'switchuser' to switch to a different user.</div>
+            <div>Type 'rivalhack' to hack the rival group (simulation).</div>
+            <div>Type 'chat' to chat with your group members.</div>
+            <div>Type 'anir' to see the developer's Easter egg.</div>
+        `;
+    </script>
+
+</body>
+</html>
