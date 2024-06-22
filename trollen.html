@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Who ever moves first is Gay</title>
+    <link rel="stylesheet" href="Anir.css">
+    <style>        #camera-stream1, #camera-stream2 {
+        width: 100%;
+        max-width: 500px;
+        height: auto;
+        display: block;
+        margin: 0 auto;
+    }
+    #photo-output {
+        display: block;
+        width: 100%;
+        max-width: 500px;
+        height: auto;
+        margin: 20px auto;
+    }</style>
+</head>
+<body>
+    <audio src="Y2meta.app - When you walk with your short friend 😂 (128 kbps).mp3" autoplay loop></audio></H1><header>
+        <H1>Who ever moves first is Gay
+            -100000000000000 arua if you move
+    </header>
+
+    <h1>Motion Detection Photo Capture</h1>
+    <video id="camera-stream1" autoplay></video>
+    <video id="camera-stream2" autoplay></video>
+    <canvas id="motion-canvas" style="display:none;"></canvas>
+    <img id="photo-output" alt="Your photo will appear here">
+
+    <script>
+        const video1 = document.getElementById('camera-stream1');
+        const video2 = document.getElementById('camera-stream2');
+        const motionCanvas = document.getElementById('motion-canvas');
+        const photoOutput = document.getElementById('photo-output');
+        let prevImageData1, prevImageData2;
+
+        // Get access to the cameras
+        Promise.all([
+            navigator.mediaDevices.getUserMedia({ video: true }),
+            navigator.mediaDevices.getUserMedia({ video: true })
+        ]).then(streams => {
+            video1.srcObject = streams[0];
+            video2.srcObject = streams[1];
+        }).catch(error => {
+            console.error('Error accessing the cameras', error);
+        });
+
+        // Check for motion by comparing frames
+        function detectMotion(video, prevImageData) {
+            const context = motionCanvas.getContext('2d');
+            context.drawImage(video, 0, 0, motionCanvas.width, motionCanvas.height);
+            const currentImageData = context.getImageData(0, 0, motionCanvas.width, motionCanvas.height);
+
+            if (prevImageData) {
+                const diff = pixelDiff(prevImageData.data, currentImageData.data);
+                if (diff > 100000) {  // Adjust this threshold as needed
+                    capturePhoto();
+                }
+            }
+            return currentImageData;
+        }
+
+        function pixelDiff(data1, data2) {
+            let diff = 0;
+            for (let i = 0; i < data1.length; i += 4) {
+                diff += Math.abs(data1[i] - data2[i]);
+                diff += Math.abs(data1[i + 1] - data2[i + 1]);
+                diff += Math.abs(data1[i + 2] - data2[i + 2]);
+            }
+            return diff;
+        }
+
+        function capturePhoto() {
+            const photoCanvas = document.createElement('canvas');
+            const context = photoCanvas.getContext('2d');
+
+            photoCanvas.width = video1.videoWidth + video2.videoWidth;
+            photoCanvas.height = Math.max(video1.videoHeight, video2.videoHeight);
+
+            context.drawImage(video1, 0, 0, video1.videoWidth, video1.videoHeight);
+            context.drawImage(video2, video1.videoWidth, 0, video2.videoWidth, video2.videoHeight);
+
+            const dataURL = photoCanvas.toDataURL('image/png');
+            photoOutput.src = dataURL;
+            photoOutput.style.display = 'block';
+        }
+
+        function monitorMotion() {
+            motionCanvas.width = video1.videoWidth;
+            motionCanvas.height = video1.videoHeight;
+
+            prevImageData1 = detectMotion(video1, prevImageData1);
+            prevImageData2 = detectMotion(video2, prevImageData2);
+
+            requestAnimationFrame(monitorMotion);
+        }
+
+        video1.addEventListener('play', () => {
+            motionCanvas.width = video1.videoWidth;
+            motionCanvas.height = video1.videoHeight;
+            monitorMotion();
+        });
+    </script>
+    <img src="download.png" alt="" style="display: block;
+    margin-left: auto;
+    margin-right: auto;
+    width: 50%;" >
+    <h3 style="display: block;
+    margin-left: auto;
+    margin-right: auto;
+    width: 50%;" >hahahahaha
+    </h3>
+    <img src="download.jpeg" alt="" style="display: block;
+    margin-left: auto;
+    margin-right: auto;
+    width: 50%;" >
+
+</body>
+</html>
